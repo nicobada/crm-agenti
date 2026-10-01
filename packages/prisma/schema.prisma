@@ -1,0 +1,341 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// RBAC - Ruoli e Permessi
+// ==========================================
+model Role {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  users       User[]
+  permissions Permission[]
+}
+
+model Permission {
+  id        String   @id @default(cuid())
+  resource  String
+  action    String
+  createdAt DateTime @default(now())
+  roles     Role[]
+}
+
+// ==========================================
+// Utenti e Autenticazione
+// ==========================================
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  roles         Role[]
+  agent         Agent?
+  auditLogs     AuditLog[]
+}
+
+// ==========================================
+// Agenti
+// ==========================================
+model Agent {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  code            String   @unique
+  phone           String?
+  region          String?
+  commissionRate  Decimal  @default(10.00) @db.Decimal(5, 2)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clients         Client[]
+  orders          Order[]
+  commissions     Commission[]
+}
+
+// ==========================================
+// Clienti / Dottori
+// ==========================================
+model Client {
+  id              String      @id @default(cuid())
+  agentId         String?
+  type            ClientType  @default(DOCTOR)
+  name            String
+  email           String?
+  phone           String?
+  address         String?
+  city            String?
+  vatNumber       String?
+  specialization  String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  agent           Agent?      @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  orders          Order[]
+  documents       Document[]
+  commissionRules CommissionRule[]
+}
+
+enum ClientType {
+  DOCTOR
+  CLINIC
+  PHARMACY
+  HOSPITAL
+  DISTRIBUTOR
+  OTHER
+}
+
+// ==========================================
+// Prodotti
+// ==========================================
+model Product {
+  id            String   @id @default(cuid())
+  sku           String   @unique
+  name          String
+  description   String?
+  basePrice     Decimal  @db.Decimal(12, 2)
+  category      String?
+  categoryId    String?
+  isActive      Boolean  @default(true)
+  stock         Int?     @default(0) // <--- Modifica aggiunta qui
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  categoryRef   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  orderItems      OrderItem[]
+  commissionRules CommissionRule[]
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String?    @unique
+  description String?
+  parentId    String?
+  sortOrder   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[] @relation("CategoryHierarchy")
+  products    Product[]
+}
+
+model Attribute {
+  id           String           @id @default(cuid())
+  name         String
+  slug         String?          @unique
+  type         String           @default("SELECT")
+  isVisible    Boolean          @default(true)
+  isFilterable Boolean          @default(false)
+  sortOrder    Int              @default(0)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @default(now())
+
+  values       AttributeValue[]
+}
+
+model AttributeValue {
+  id          String    @id @default(cuid())
+  attributeId String
+  value       String
+  color       String?
+  image       String?
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
+
+  attribute   Attribute @relation(fields: [attributeId], references: [id], onDelete: Cascade)
+}
+
+// ==========================================
+// Ordini
+// ==========================================
+model Order {
+  id           String      @id @default(cuid())
+  clientId     String
+  agentId      String
+  orderNumber  String      @unique
+  totalAmount  Decimal     @db.Decimal(12, 2)
+  status       OrderStatus @default(PENDING)
+  orderDate    DateTime    @default(now())
+  notes        String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  client       Client      @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  agent        Agent       @relation(fields: [agentId], references: [id], onDelete: Restrict)
+  items        OrderItem[]
+  commissions  Commission[]
+  documents    Document[]
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  INVOICED
+  PAID
+  CANCELLED
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  productId   String?
+  productName String
+  quantity    Int     @default(1)
+  unitPrice   Decimal @db.Decimal(12, 2)
+  discount    Decimal @default(0.00) @db.Decimal(5, 2)
+
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+}
+
+// ==========================================
+// Regole di Provvigione Avanzate
+// ==========================================
+model CommissionRule {
+  id            String              @id @default(cuid())
+  name          String
+  description   String?
+  priority      Int                 @default(0)
+  isActive      Boolean             @default(true)
+  appliesTo     CommissionAppliesTo @default(AGENT)
+  targetId      String?
+  percentage    Decimal             @db.Decimal(5, 2)
+  minAmount     Decimal?            @db.Decimal(12, 2)
+  maxAmount     Decimal?            @db.Decimal(12, 2)
+  validFrom     DateTime            @default(now())
+  validUntil    DateTime?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  commissions   Commission[]
+  clients       Client[]
+  products      Product[]
+}
+
+enum CommissionAppliesTo {
+  AGENT
+  CLIENT
+  PRODUCT
+  GLOBAL
+}
+
+// ==========================================
+// Provvigioni
+// ==========================================
+model Commission {
+  id               String           @id @default(cuid())
+  orderId          String
+  agentId          String
+  commissionRuleId String?
+  amount           Decimal          @db.Decimal(12, 2)
+  percentage       Decimal          @db.Decimal(5, 2)
+  baseAmount       Decimal          @db.Decimal(12, 2)
+  overrideReason   String?
+  status           CommissionStatus @default(PENDING)
+  paidAt           DateTime?
+  notes            String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  order            Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  agent            Agent            @relation(fields: [agentId], references: [id], onDelete: Restrict)
+  commissionRule   CommissionRule?  @relation(fields: [commissionRuleId], references: [id], onDelete: SetNull)
+
+  @@index([agentId, status])
+  @@index([orderId])
+  @@index([createdAt])
+}
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+// ==========================================
+// Documenti
+// ==========================================
+model Document {
+  id        String       @id @default(cuid())
+  orderId   String?
+  clientId  String?
+  type      DocumentType @default(OTHER)
+  fileName  String
+  fileUrl   String
+  mimeType  String
+  size      Int
+  s3Key     String
+  createdAt DateTime     @default(now())
+
+  order     Order?       @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  client    Client?      @relation(fields: [clientId], references: [id], onDelete: SetNull)
+}
+
+enum DocumentType {
+  ORDER
+  INVOICE
+  DELIVERY_NOTE
+  CONTRACT
+  CERTIFICATE
+  QUOTE
+  OTHER
+}
+
+// ==========================================
+// Audit Log
+// ==========================================
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  resource   String
+  resourceId String?
+  details    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+// Tabella per il tracciamento delle attività (GDPR Audit Log)
+model ActivityLog {
+  id        String   @id @default(uuid())
+  
+  // Chi ha fatto l'azione
+  userId    String
+  userEmail String?  // Salviamo anche l'email così è più facile da leggere
+  
+  // Cosa ha fatto
+  action    String   // es: "CREATE", "UPDATE_STATUS", "PAY"
+  entity    String   // es: "ORDER", "COMMISSION"
+  entityId  String   // l'ID dell'ordine o della commissione modificata
+  
+  // Dettagli extra opzionali (es. da "PENDING" a "PAID")
+  details   String?  @db.Text
+  
+  // Quando è successo
+  createdAt DateTime @default(now())
+
+  // Relazione opzionale con l'utente (se hai un modello User)
+  // user      User     @relation(fields: [userId], references: [id])
+}

@@ -1,0 +1,25 @@
+{
+  "name": "crm-agenti",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "db:generate": "turbo run db:generate",
+    "db:migrate": "turbo run db:migrate",
+    "db:seed": "turbo run db:seed",
+    "db:studio": "turbo run db:studio"
+  },
+  "packageManager": "npm@10.2.4",
+
+  "devDependencies": {
+    "caniuse-lite": "^1.0.30001790",
+    "tsx": "^4.21.0",
+    "turbo": "^2.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
