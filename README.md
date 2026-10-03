@@ -12,10 +12,15 @@ Piattaforma CRM B2B full-stack di livello enterprise per la gestione integrata d
 
 ---
 
-## ⚡ Demo & Preview
+## ⚡ Live Demo & Preview
 
-- **Live Application:** [Demo Live su Vercel/Railway](https://crm-agenti-demo.up.railway.app) *(Link placeholder per deploy portfolio)*
-- **Dashboard Preview:** `docs/assets/preview.gif`
+- 🌐 **Frontend Web App (Next.js su Vercel):** [https://crm-agenti-flax.vercel.app](https://crm-agenti-flax.vercel.app)
+- ⚙️ **Backend REST API (NestJS su Render):** [https://crm-agenti-wyqe.onrender.com/api](https://crm-agenti-wyqe.onrender.com/api)
+- 🗄️ **Database Cloud (PostgreSQL su Supabase):** Attivo in produzione con pooling e SSL
+
+<p align="center">
+  <img src="docs/assets/preview.png" alt="CRM Agenti - Login & Dashboard Preview" width="850" />
+</p>
 
 ---
 
