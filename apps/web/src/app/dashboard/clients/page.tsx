@@ -2,7 +2,14 @@
 
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { useClients, useCreateClient, useUpdateClient } from "@/hooks/use-clients";
+import {
+  useClients,
+  useCreateClient,
+  useUpdateClient,
+  useAnonymizeClient,
+  useDeleteClient,
+  downloadClientGdprExport,
+} from "@/hooks/use-clients";
 import { useAgents } from "@/hooks/use-agents";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -17,6 +24,12 @@ import {
   Search,
   UserCheck,
   Building,
+  Download,
+  Trash2,
+  ShieldCheck,
+  ShieldAlert,
+  Loader2,
+  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -36,11 +49,16 @@ function ClientsContent() {
   const { data: agentsData } = useAgents();
   const createClient = useCreateClient();
   const updateClient = useUpdateClient();
+  const anonymizeClient = useAnonymizeClient();
+  const deleteClient = useDeleteClient();
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL");
+  const [exportingId, setExportingId] = useState<string | null>(null);
+  const [anonymizeTarget, setAnonymizeTarget] = useState<any | null>(null);
+  const [actionMessage, setActionMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const [form, setForm] = useState<any>({
     type: "PHARMACY",
@@ -137,6 +155,64 @@ function ClientsContent() {
     setShowForm(true);
   };
 
+  const handleExport = async (client: any) => {
+    try {
+      setExportingId(client.id);
+      await downloadClientGdprExport(client.id, client.name);
+      setActionMessage({
+        type: "success",
+        text: `Dossier GDPR scaricato con successo per '${client.name}' (Art. 20 - Portabilità dei Dati).`,
+      });
+    } catch {
+      setActionMessage({
+        type: "error",
+        text: "Errore durante l'esportazione dei dati GDPR.",
+      });
+    } finally {
+      setExportingId(null);
+    }
+  };
+
+  const handleConfirmAnonymize = async () => {
+    if (!anonymizeTarget) return;
+    try {
+      await anonymizeClient.mutateAsync(anonymizeTarget.id);
+      setActionMessage({
+        type: "success",
+        text: `Cliente anonimizzato irreversibilmente ai sensi dell'Art. 17 GDPR (Diritto all'Oblio).`,
+      });
+      setAnonymizeTarget(null);
+      refetch();
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || "Errore durante l'anonimizzazione GDPR.";
+      setActionMessage({
+        type: "error",
+        text: msg,
+      });
+      setAnonymizeTarget(null);
+    }
+  };
+
+  const handleDelete = async (client: any) => {
+    if (!window.confirm(`Sei sicuro di voler eliminare definitivamente il cliente '${client.name}'?`)) {
+      return;
+    }
+    try {
+      await deleteClient.mutateAsync(client.id);
+      setActionMessage({
+        type: "success",
+        text: `Cliente rimosso con successo.`,
+      });
+      refetch();
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || "Impossibile eliminare il cliente.";
+      setActionMessage({
+        type: "error",
+        text: msg,
+      });
+    }
+  };
+
   const filteredClients = useMemo(() => {
     return clients.filter((c: any) => {
       const matchesSearch =
@@ -166,11 +242,16 @@ function ClientsContent() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-800">
+              <ShieldCheck size={12} className="text-emerald-600" /> Privacy by Design: Art. 17 &amp; 20 GDPR
+            </span>
+          </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             Anagrafica Clienti
           </h1>
           <p className="text-sm text-slate-500">
-            Gestisci la rubrica commerciale, indirizzi, contatti e assegnazioni agenti
+            Gestisci la rubrica commerciale, indirizzi, contatti e conformità GDPR dei clienti
           </p>
         </div>
         <button
@@ -184,6 +265,33 @@ function ClientsContent() {
           <Plus size={18} /> AGGIUNGI CLIENTE
         </button>
       </div>
+
+      {/* Action Notification Banner */}
+      {actionMessage && (
+        <div
+          className={cn(
+            "flex items-center justify-between gap-3 rounded-2xl border p-4 text-sm font-medium animate-in fade-in duration-150",
+            actionMessage.type === "success"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+              : "border-rose-200 bg-rose-50 text-rose-800"
+          )}
+        >
+          <div className="flex items-center gap-2">
+            {actionMessage.type === "success" ? (
+              <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle size={18} className="text-rose-600 shrink-0" />
+            )}
+            <span>{actionMessage.text}</span>
+          </div>
+          <button
+            onClick={() => setActionMessage(null)}
+            className="text-slate-400 hover:text-slate-700 transition-colors"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
 
       {/* Form Card */}
       {showForm && (
@@ -418,7 +526,14 @@ function ClientsContent() {
               return (
                 <tr key={c.id} className="hover:bg-slate-50/70 transition-colors">
                   <td className="p-4">
-                    <div className="font-bold text-slate-900 text-sm">{c.name}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-slate-900 text-sm">{c.name}</span>
+                      {c.name?.startsWith("[ANONIMIZZATO") && (
+                        <span className="rounded-md bg-amber-50 border border-amber-200 px-1.5 py-0.5 text-[9px] font-bold text-amber-700 uppercase">
+                          Art. 17 Oblio
+                        </span>
+                      )}
+                    </div>
                     <div className="mt-1 flex items-center gap-2">
                       <span
                         className={cn(
@@ -479,13 +594,46 @@ function ClientsContent() {
                   )}
 
                   <td className="p-4 text-center">
-                    <button
-                      onClick={() => startEdit(c)}
-                      className="rounded-lg p-2 text-slate-400 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
-                      title="Modifica Anagrafica"
-                    >
-                      <Pencil size={16} />
-                    </button>
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        onClick={() => startEdit(c)}
+                        className="rounded-lg p-2 text-slate-400 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                        title="Modifica Anagrafica"
+                      >
+                        <Pencil size={15} />
+                      </button>
+
+                      <button
+                        onClick={() => handleExport(c)}
+                        disabled={exportingId === c.id}
+                        className="rounded-lg p-2 text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-colors disabled:opacity-50"
+                        title="Esporta Dati (Art. 20 GDPR - Portabilità)"
+                      >
+                        {exportingId === c.id ? (
+                          <Loader2 size={15} className="animate-spin text-blue-600" />
+                        ) : (
+                          <Download size={15} />
+                        )}
+                      </button>
+
+                      {!c.name?.startsWith("[ANONIMIZZATO") && (
+                        <button
+                          onClick={() => setAnonymizeTarget(c)}
+                          className="rounded-lg p-2 text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-colors"
+                          title="Anonimizza PII (Art. 17 GDPR - Diritto all'Oblio)"
+                        >
+                          <ShieldAlert size={15} />
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => handleDelete(c)}
+                        className="rounded-lg p-2 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                        title="Elimina Anagrafica"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );
@@ -503,6 +651,63 @@ function ClientsContent() {
           </div>
         )}
       </div>
+
+      {/* GDPR Anonymization Modal */}
+      {anonymizeTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-lg rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-3 text-amber-600">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100">
+                <ShieldAlert className="h-6 w-6 text-amber-700" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  Diritto all&apos;Oblio (Art. 17 GDPR)
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Anonimizzazione irreversibile dati personali e contatti
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3 rounded-2xl bg-slate-50 p-4 border border-slate-200/80 text-xs sm:text-sm text-slate-700 leading-relaxed">
+              <p>
+                Stai per richiedere l&apos;anonimizzazione definitiva dei dati di{" "}
+                <strong className="text-slate-900 font-semibold">{anonymizeTarget.name}</strong>.
+              </p>
+              <ul className="list-disc pl-5 space-y-1 text-xs text-slate-600">
+                <li>Nome, recapiti telefonici, email e Partita IVA verranno <strong>rimossi irreversibilmente</strong>.</li>
+                <li>Ai sensi dell&apos;<strong>Art. 17(3)(b) GDPR</strong> e degli obblighi fiscali (art. 2220 C.C.), lo storico ordini e fatture rimarrà registrato per fini contabili in forma dissociata.</li>
+                <li>L&apos;evento verrà registrato nel Registro dei Trattamenti (Art. 30 GDPR).</li>
+              </ul>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setAnonymizeTarget(null)}
+                className="rounded-xl border border-slate-200 px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                Annulla
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmAnonymize}
+                disabled={anonymizeClient.isPending}
+                className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-lg shadow-rose-600/25 hover:bg-rose-700 active:scale-95 transition-all disabled:opacity-50"
+              >
+                {anonymizeClient.isPending ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" /> In corso...
+                  </>
+                ) : (
+                  "Conferma Anonimizzazione"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

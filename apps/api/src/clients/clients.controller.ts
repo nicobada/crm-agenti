@@ -25,6 +25,16 @@ export class ClientsController {
     return this.clientsService.findOne(id, user);
   }
 
+  @Get(':id/export')
+  exportData(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.clientsService.exportData(id, user);
+  }
+
+  @Post(':id/anonymize')
+  anonymize(@Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
+    return this.clientsService.anonymize(id, user);
+  }
+
   @Patch(':id')
   update(
     @Param('id') id: string,

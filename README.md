@@ -1,6 +1,7 @@
 # 🏢 CRM Agenti & Provvigioni — Enterprise Monorepo
 
 [![CI Pipeline](https://github.com/nicobada/crm-agenti/actions/workflows/ci.yml/badge.svg)](https://github.com/nicobada/crm-agenti/actions/workflows/ci.yml)
+![GDPR Ready](https://img.shields.io/badge/GDPR-Privacy%20by%20Design-0ea5e9?logo=shield)
 ![Next.js](https://img.shields.io/badge/Next.js-14.2-black?logo=next.js)
 ![NestJS](https://img.shields.io/badge/NestJS-10.3-red?logo=nestjs)
 ![Prisma](https://img.shields.io/badge/Prisma-5.14-blue?logo=prisma)
@@ -8,7 +9,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue?logo=typescript)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-Piattaforma CRM B2B full-stack di livello enterprise per la gestione integrata della rete commerciale: anagrafica clienti, ordini di vendita con movimentazione atomica del magazzino, motore provvigionale gerarchico multi-livello a regole concorrenti, archiviazione documentale ibrida S3/Locale e audit trail GDPR.
+Piattaforma CRM B2B full-stack di livello enterprise per la gestione integrata della rete commerciale: anagrafica clienti conforme GDPR (Privacy by Design), ordini di vendita con movimentazione atomica del magazzino, motore provvigionale gerarchico multi-livello a regole concorrenti, archiviazione documentale ibrida S3/Locale e audit trail immutabile.
 
 ---
 
@@ -79,6 +80,12 @@ Quando lo stato di un ordine avanza a `CONFIRMED` o successivi, la disponibilit�
 ### 3. Sicurezza RBAC & Data Ownership
 Gli agenti commerciali hanno visibilità in lettura e scrittura esclusivamente sui propri ordini, documenti e provvigioni, garantita a livello di guardie HTTP NestJS (`JwtAuthGuard`, `RolesGuard`, `OwnershipGuard`) e a livello di filtri query Prisma nel service layer.
 
+### 4. Conformità GDPR & Privacy by Design (Art. 17, 20, 25, 30)
+L'architettura include controlli dedicati per adempiere al Regolamento Generale sulla Protezione dei Dati (UE 2016/679):
+- **Portabilità dei Dati (Art. 20):** Esportazione immediata del dossier anagrafico e transazionale in formato standard machine-readable JSON (`GET /api/clients/:id/export`).
+- **Diritto all'Oblio & Anonimizzazione PII (Art. 17):** Endpoint dedicato (`POST /api/clients/:id/anonymize`) che rimuove irreversibilmente ogni dato identificativo (nome, telefono, email, P.IVA, indirizzo) preservando la validità dello storico contabile ordini in ottemperanza all'Art. 17(3)(b) GDPR e all'obbligo di tenuta delle scritture contabili (art. 2220 C.C.). L'eliminazione fisica diretta viene bloccata a livello di servizio qualora sussistano ordini fiscali attivi.
+- **Registro delle Attività di Trattamento (Art. 30):** Tracciamento automatico di tutte le mutazioni e degli accessi sensibili tramite `AuditInterceptor` e tabella `ActivityLog` (IP, User Agent, ID operatore, timestamp e payload sanitizzato privo di segreti o password).
+
 ---
 
 ## 🚀 Quickstart Locale (3 Passaggi)
@@ -132,12 +139,15 @@ npm run build
 | `GET` | `/api/agents` | ADMIN, MANAGER | Elenco agenti con metriche di performance |
 | `GET` | `/api/clients` | Tutti | Elenco clienti (filtrato per agente se ruolo AGENT) |
 | `POST` | `/api/clients` | Tutti | Creazione anagrafica cliente |
+| `GET` | `/api/clients/:id/export` | Tutti (Owner/Admin) | **GDPR Art. 20:** Esportazione portabilità dati JSON |
+| `POST` | `/api/clients/:id/anonymize` | Tutti (Owner/Admin) | **GDPR Art. 17:** Anonimizzazione PII (Diritto all'Oblio) |
+| `DELETE`| `/api/clients/:id` | Tutti (Owner/Admin) | Eliminazione anagrafica (bloccata se presenti ordini) |
 | `POST` | `/api/orders` | Tutti | Creazione ordine e calcolo provvigioni |
 | `PATCH`| `/api/orders/:id/status`| Tutti | Avanzamento stato ordine e aggiornamento stock |
 | `GET` | `/api/commissions` | Tutti | Elenco provvigioni maturate |
 | `PATCH`| `/api/commissions/:id/pay`| ADMIN, MANAGER | Liquidazione provvigione |
 | `POST` | `/api/documents/upload` | Tutti | Upload documento su S3/Storage locale |
-| `GET` | `/api/logs` | ADMIN | Consultazione Audit Log GDPR |
+| `GET` | `/api/logs` | ADMIN | Consultazione Audit Log GDPR (Art. 30) |
 
 ---
 

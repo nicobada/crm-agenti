@@ -10,6 +10,8 @@ const ACTION_CONFIG: Record<string, { label: string; bg: string; text: string }>
   UPDATE_STATUS: { label: "Cambio Stato", bg: "bg-amber-50 border-amber-200", text: "text-amber-700" },
   APPROVE: { label: "Approvazione", bg: "bg-blue-50 border-blue-200", text: "text-blue-700" },
   PAY: { label: "Liquidazione", bg: "bg-purple-50 border-purple-200", text: "text-purple-700" },
+  GDPR_ANONYMIZE: { label: "GDPR Oblio (Art. 17)", bg: "bg-rose-50 border-rose-200", text: "text-rose-700" },
+  GDPR_EXPORT: { label: "GDPR Portabilità (Art. 20)", bg: "bg-indigo-50 border-indigo-200", text: "text-indigo-700" },
 };
 
 export default function LogsPage() {
