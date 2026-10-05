@@ -145,6 +145,27 @@ export function Sidebar() {
         )}
       </nav>
 
+      {/* Enterprise & Custom Setup Card */}
+      {!collapsed && (
+        <div className="mx-3 mb-2 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-3 text-white shadow-sm">
+          <div className="flex items-center gap-1.5 mb-1">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+              Personalizzazioni B2B
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-300 leading-tight">
+            Vuoi integrare questo CRM con il tuo ERP o richiedere un modulo su misura?
+          </p>
+          <a
+            href="mailto:nikybali@gmail.com?subject=Richiesta%20Personalizzazione%20CRM%20Agenti"
+            className="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-emerald-600/90 hover:bg-emerald-600 px-2 py-1.5 text-[11px] font-bold text-white transition-colors"
+          >
+            Contatta lo Sviluppatore
+          </a>
+        </div>
+      )}
+
       {/* Footer Profile & Logout */}
       <div className="border-t border-slate-200/80 p-3 bg-slate-50/50">
         <button

@@ -3,7 +3,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { ShieldCheck, User as UserIcon } from "lucide-react";
+import { ShieldCheck, User as UserIcon, Mail } from "lucide-react";
 
 const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
   "/dashboard": { title: "Dashboard", subtitle: "Panoramica delle attività e metriche chiave" },
@@ -58,8 +58,18 @@ export function Header() {
 
       {/* Right User Bar */}
       <div className="flex items-center gap-3 sm:gap-4">
+        {/* Contact / B2B Button */}
+        <a
+          href="mailto:nikybali@gmail.com?subject=Richiesta%20Informazioni%20CRM%20Agenti"
+          className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:border-emerald-300 hover:bg-emerald-50/50 hover:text-emerald-800 transition-all"
+          title="Contatta lo sviluppatore per personalizzazioni o setup dedicato"
+        >
+          <Mail size={13} className="text-emerald-600" />
+          <span>Supporto &amp; B2B</span>
+        </a>
+
         {/* System Online Status */}
-        <div className="hidden md:flex items-center gap-2 rounded-full border border-slate-200/80 bg-slate-50/80 px-3 py-1 text-xs font-medium text-slate-600">
+        <div className="hidden sm:flex items-center gap-2 rounded-full border border-slate-200/80 bg-slate-50/80 px-3 py-1 text-xs font-medium text-slate-600">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>

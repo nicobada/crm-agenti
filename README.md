@@ -2,6 +2,7 @@
 
 [![CI Pipeline](https://github.com/nicobada/crm-agenti/actions/workflows/ci.yml/badge.svg)](https://github.com/nicobada/crm-agenti/actions/workflows/ci.yml)
 ![GDPR Ready](https://img.shields.io/badge/GDPR-Privacy%20by%20Design-0ea5e9?logo=shield)
+[![Contact](https://img.shields.io/badge/Contact-nikybali%40gmail.com-059669?logo=gmail&logoColor=white)](mailto:nikybali@gmail.com)
 ![Next.js](https://img.shields.io/badge/Next.js-14.2-black?logo=next.js)
 ![NestJS](https://img.shields.io/badge/NestJS-10.3-red?logo=nestjs)
 ![Prisma](https://img.shields.io/badge/Prisma-5.14-blue?logo=prisma)
@@ -148,6 +149,21 @@ npm run build
 | `PATCH`| `/api/commissions/:id/pay`| ADMIN, MANAGER | Liquidazione provvigione |
 | `POST` | `/api/documents/upload` | Tutti | Upload documento su S3/Storage locale |
 | `GET` | `/api/logs` | ADMIN | Consultazione Audit Log GDPR (Art. 30) |
+
+---
+
+## 💼 Servizi B2B, Personalizzazioni & Contatti
+
+Questa piattaforma open source rappresenta un'architettura modulare di livello enterprise pronta per essere adattata a contesti commerciali specifici.
+
+Sei un'azienda, un'agenzia o un system integrator e hai bisogno di:
+- **Deployment Cloud Dedicato & Hardening:** configurazione di produzione isolata (AWS, GCP, Hetzner o VPS on-premise) con CI/CD e disaster recovery.
+- **Integrazioni ERP & Sistemi Gestionali:** sincronizzazione bidirezionale con Zucchetti, TeamSystem, SAP, Danea Easyfatt, API di fatturazione elettronica SDI o cataloghi e-commerce.
+- **Piani Provvigionali Personalizzati:** configurazione di algoritmi per ENASARCO, FIRR, premi a scaglioni progressivi, gare vendita e budget trimestrali.
+- **Sviluppo Full-Stack & Consulenza Architetturale:** estensione delle funzionalità Next.js 14 / NestJS 10.
+
+📬 **Contatto Diretto:** [nikybali@gmail.com](mailto:nikybali@gmail.com)  
+*Disponibile per demo tecniche, audit di conformità e accordi di consulenza / sviluppo su misura.*
 
 ---
 

@@ -159,10 +159,19 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Footer info */}
-        <p className="mt-6 text-center text-xs text-slate-500">
-          CRM Agenti &copy; 2026 &bull; Conforme GDPR Art. 30
-        </p>
+        {/* Footer info & B2B Inquiries */}
+        <div className="mt-6 text-center text-xs text-slate-400 space-y-1">
+          <p>CRM Agenti &bull; Architettura Enterprise Open Source &bull; GDPR Ready</p>
+          <p className="text-[11px] text-slate-500">
+            Personalizzazioni aziendali o setup dedicato:{" "}
+            <a
+              href="mailto:nikybali@gmail.com?subject=Richiesta%20Informazioni%20CRM%20Agenti"
+              className="font-medium text-emerald-400 hover:text-emerald-300 underline underline-offset-2 transition-colors"
+            >
+              nikybali@gmail.com
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );
