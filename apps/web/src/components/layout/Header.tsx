@@ -3,7 +3,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { ShieldCheck, User as UserIcon, Mail } from "lucide-react";
+import { ShieldCheck, User as UserIcon, Github } from "lucide-react";
 
 const PAGE_TITLES: Record<string, { title: string; subtitle: string }> = {
   "/dashboard": { title: "Dashboard", subtitle: "Panoramica delle attività e metriche chiave" },
@@ -58,14 +58,16 @@ export function Header() {
 
       {/* Right User Bar */}
       <div className="flex items-center gap-3 sm:gap-4">
-        {/* Contact / B2B Button */}
+        {/* GitHub Developer Profile Button */}
         <a
-          href="mailto:nikybali@gmail.com?subject=Richiesta%20Informazioni%20CRM%20Agenti"
-          className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:border-emerald-300 hover:bg-emerald-50/50 hover:text-emerald-800 transition-all"
-          title="Contatta lo sviluppatore per personalizzazioni o setup dedicato"
+          href="https://github.com/nicobada"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-white px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-all"
+          title="Visita il profilo GitHub dello sviluppatore @nicobada"
         >
-          <Mail size={13} className="text-emerald-600" />
-          <span>Supporto &amp; B2B</span>
+          <Github size={13} className="text-slate-700" />
+          <span>@nicobada</span>
         </a>
 
         {/* System Online Status */}

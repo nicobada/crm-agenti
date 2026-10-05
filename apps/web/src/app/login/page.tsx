@@ -163,12 +163,14 @@ export default function LoginPage() {
         <div className="mt-6 text-center text-xs text-slate-400 space-y-1">
           <p>CRM Agenti &bull; Architettura Enterprise Open Source &bull; GDPR Ready</p>
           <p className="text-[11px] text-slate-500">
-            Personalizzazioni aziendali o setup dedicato:{" "}
+            Sviluppato da{" "}
             <a
-              href="mailto:nikybali@gmail.com?subject=Richiesta%20Informazioni%20CRM%20Agenti"
+              href="https://github.com/nicobada"
+              target="_blank"
+              rel="noopener noreferrer"
               className="font-medium text-emerald-400 hover:text-emerald-300 underline underline-offset-2 transition-colors"
             >
-              nikybali@gmail.com
+              @nicobada su GitHub
             </a>
           </p>
         </div>

@@ -18,6 +18,7 @@ import {
   PackageSearch,
   Activity,
   Sparkles,
+  Github,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -158,10 +159,13 @@ export function Sidebar() {
             Vuoi integrare questo CRM con il tuo ERP o richiedere un modulo su misura?
           </p>
           <a
-            href="mailto:nikybali@gmail.com?subject=Richiesta%20Personalizzazione%20CRM%20Agenti"
-            className="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-emerald-600/90 hover:bg-emerald-600 px-2 py-1.5 text-[11px] font-bold text-white transition-colors"
+            href="https://github.com/nicobada"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2.5 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 px-2 py-1.5 text-[11px] font-bold text-white transition-colors"
           >
-            Contatta lo Sviluppatore
+            <Github size={13} />
+            <span>@nicobada su GitHub</span>
           </a>
         </div>
       )}

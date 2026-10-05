@@ -2,7 +2,7 @@
 
 [![CI Pipeline](https://github.com/nicobada/crm-agenti/actions/workflows/ci.yml/badge.svg)](https://github.com/nicobada/crm-agenti/actions/workflows/ci.yml)
 ![GDPR Ready](https://img.shields.io/badge/GDPR-Privacy%20by%20Design-0ea5e9?logo=shield)
-[![Contact](https://img.shields.io/badge/Contact-nikybali%40gmail.com-059669?logo=gmail&logoColor=white)](mailto:nikybali@gmail.com)
+[![Developer Profile](https://img.shields.io/badge/Developer-@nicobada-181717?logo=github&logoColor=white)](https://github.com/nicobada)
 ![Next.js](https://img.shields.io/badge/Next.js-14.2-black?logo=next.js)
 ![NestJS](https://img.shields.io/badge/NestJS-10.3-red?logo=nestjs)
 ![Prisma](https://img.shields.io/badge/Prisma-5.14-blue?logo=prisma)
@@ -162,7 +162,7 @@ Sei un'azienda, un'agenzia o un system integrator e hai bisogno di:
 - **Piani Provvigionali Personalizzati:** configurazione di algoritmi per ENASARCO, FIRR, premi a scaglioni progressivi, gare vendita e budget trimestrali.
 - **Sviluppo Full-Stack & Consulenza Architetturale:** estensione delle funzionalità Next.js 14 / NestJS 10.
 
-📬 **Contatto Diretto:** [nikybali@gmail.com](mailto:nikybali@gmail.com)  
+📬 **Sviluppatore & Contatto:** [@nicobada su GitHub](https://github.com/nicobada)  
 *Disponibile per demo tecniche, audit di conformità e accordi di consulenza / sviluppo su misura.*
 
 ---
